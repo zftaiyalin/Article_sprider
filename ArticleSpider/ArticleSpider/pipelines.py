@@ -13,6 +13,7 @@ import codecs
 import MySQLdb.cursors
 from scrapy.exporters import JsonItemExporter
 
+
 class ArticlespiderPipeline(object):
     def process_item(self, item, spider):
         return item
@@ -29,6 +30,7 @@ class JsonWithEncodingPipeline(object):
     def spider_closed(self,spider):
         self.file.close()
 
+
 class JsonExporterPipleline(object):
     #调用scrapy提供的json export导出json文件
     def __init__(self):
@@ -44,17 +46,16 @@ class JsonExporterPipleline(object):
         self.exporter.export_item(item)
         return item
 
+
 class ArticleImagePipeline(ImagesPipeline):
     def item_completed(self, results, item, info):
-        for ok,valus in results:
-            if ok:
-                image_file_path = valus.get("path","")
-            else:
-                image_file_path = ""
-
+        if "front_image_url" in item:
+            for ok, value in results:
+                image_file_path = value["path"]
             item["front_image_path"] = image_file_path
 
         return item
+
 
 class MysqlPipeline(object):
     # 采用同步的机制写入mysql
@@ -81,6 +82,8 @@ class MysqlPipeline(object):
                 """
         self.cursor.execute(insert_sql, (item["title"], item["url"], item["create_date"], item["fav_nums"],item["content"]))
         self.conn.commit()
+
+
 
 class MysqlTwistedPipline(object):
     def __init__(self, dbpool):
