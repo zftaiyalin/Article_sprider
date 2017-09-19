@@ -84,7 +84,6 @@ class MysqlPipeline(object):
         self.conn.commit()
 
 
-
 class MysqlTwistedPipline(object):
     def __init__(self, dbpool):
         self.dbpool = dbpool
@@ -116,7 +115,10 @@ class MysqlTwistedPipline(object):
     def do_insert(self, cursor, item):
         # 执行具体的插入
         # 根据不同的item 构建不同的sql语句并插入到mysql中
-        insert_sql = """
-                    insert into article_spider_table(title, url, create_date, fav_nums,content) VALUES (%s, %s, %s, %s, %s)
-                     """
-        cursor.execute(insert_sql,(item["title"], item["url"], item["create_date"], item["fav_nums"], item["content"]))
+        # insert_sql = """
+        #             insert into article_spider_table(title, url, create_date, fav_nums,content) VALUES (%s, %s, %s, %s, %s)
+        #              """
+        # cursor.execute(insert_sql,(item["title"], item["url"], item["create_date"], item["fav_nums"], item["content"]))
+        insert_sql, params = item.get_insert_sql()
+        print(insert_sql, params)
+        cursor.execute(insert_sql, params)
