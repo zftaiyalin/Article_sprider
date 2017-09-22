@@ -24,6 +24,11 @@ class ZhihuSpider(scrapy.Spider):
         'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
     }
 
+    custom_settings = {
+        "COOKIES_ENABLED": True
+    }
+    #自定义settings可覆盖settings中的配置
+
     def parse(self, response):
         """
         提取出html页面中的所有url 并跟踪这些url进行一步爬取

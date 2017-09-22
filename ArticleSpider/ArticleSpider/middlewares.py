@@ -6,7 +6,9 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-
+from fake_useragent import UserAgent
+import requests
+import json
 
 class ArticlespiderSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -54,3 +56,68 @@ class ArticlespiderSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class RandomUserAgentMiddleware(object):
+    def __init__(self,crawler):
+        super(RandomUserAgentMiddleware,self).__init__()
+
+        self.ua =UserAgent()
+        self.ua_type = crawler.settings.get('RANDOM_UA_TYPE', 'random')
+
+    @classmethod
+    def from_crawler(cls,crawler):
+        return cls(crawler)
+
+    def process_request(self,request,spider):
+        def get_ua():
+            return getattr(self.ua,self.ua_type)
+
+        ua = get_ua()
+        request.headers.setdefault('User-Agent', get_ua())
+
+        # ip_hosts = requests.get("http://127.0.0.1:8000/?types=0&protocol=1&count=5&country=国内")
+        # ip_ports = json.loads(ip_hosts.text)
+        # ip = ip_ports[0][0]
+        # port = ip_ports[0][1]
+        # request.meta["proxy"] = "https://{0}:{1}".format(ip,port)
+
+        print("随机user-agent设置完毕")
+
+        # proxies = {
+        #     'http': 'http://%s:%s' % (ip, port),
+        #     'https': 'http://%s:%s' % (ip, port)
+        # }
+
+
+
+class RandomUserAgentAndIPMiddleware(object):
+    def __init__(self,crawler):
+        super(RandomUserAgentMiddleware,self).__init__()
+
+        self.ua =UserAgent()
+        self.ua_type = crawler.settings.get('RANDOM_UA_TYPE', 'random')
+
+    @classmethod
+    def from_crawler(cls,crawler):
+        return cls(crawler)
+
+    def process_request(self,request,spider):
+        def get_ua():
+            return getattr(self.ua,self.ua_type)
+
+        ua = get_ua()
+        request.headers.setdefault('User-Agent', get_ua())
+        ip_hosts = requests.get("http://127.0.0.1:8000/?types=0&protocol=1&count=5&country=国内")
+
+        ip_ports = json.loads(ip_hosts.text)
+        ip = ip_ports[0][0]
+        port = ip_ports[0][1]
+        request.meta["proxy"] = "https://{0}:{1}".format(ip,port)
+
+        print("随机user-agent和ip代理设置完毕")
+
+        # proxies = {
+        #     'http': 'http://%s:%s' % (ip, port),
+        #     'https': 'http://%s:%s' % (ip, port)
+        # }
